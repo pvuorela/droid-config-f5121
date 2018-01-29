@@ -144,10 +144,18 @@ if [ "$($FASTBOOTCMD getvar secure 2>&1 | head -n1 | cut -d ' ' -f2 )" == "yes" 
   exit 1;
 fi
 
-read -r VMAJOR VMINOR<<<$($FASTBOOTCMD getvar version-baseband 2>&1 | head -n1 | cut -d ' ' -f2 | cut -d '_' -f2 | cut -d '.' -f1,2 | tr . ' ')
+ANDROIDVERSION=$($FASTBOOTCMD getvar version-baseband 2>&1 | head -n1)
 
-if (( $VMAJOR < 34 || $VMAJOR == 34 && $VMINOR < 3 )); then
-  echo; echo "Your Sony Android version ($VMAJOR.$VMINOR) on your device is too old,"
+read -r VMAJOR VMINOR VPATCH<<<$(echo $ANDROIDVERSION | cut -d ' ' -f2 | cut -d '_' -f2 | cut -d '.' -f1,2,5 | tr . ' ')
+
+# Requirements in variables for easier testing
+RMAJOR=34
+RMINOR=3
+RPATCH=228
+
+if (( $VMAJOR < $RMAJOR || $VMAJOR == $RMAJOR && $VMINOR < $RMINOR || $VMAJOR == $RMAJOR && $VMINOR == $RMINOR && $VPATCH < $RPATCH )); then
+  echo; echo "Your Sony Android version ($ANDROIDVERSION) on your device is too old."
+  echo "You need to have at least version 34.3.A.0.228 in order for this installation to work."
   echo "Please go to https://developer.sonymobile.com/open-devices/flash-tool/how-to-download-and-install-the-flash-tool/ and update your device."
   echo;
   exit 1;

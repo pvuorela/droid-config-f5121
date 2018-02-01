@@ -19,7 +19,7 @@ if [[ -a $DEVICE_VERSION_FILE ]]; then
   DEVICE_VERSION=-$VERSION_ID
 fi
 
-source ./sailfish-release
+source ./os-release
 if [ "$SSU_RELEASE_TYPE" = "rnd" ]; then
   RELEASENAME=${NAME// /_}-${EXTRA_NAME// /_}$SAILFISH_FLAVOUR-$VERSION_ID-$DEVICE$DEVICE_VERSION
 else

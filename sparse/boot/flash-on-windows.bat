@@ -4,9 +4,9 @@
 :: This script is using fastboot to flash which differs from the factory method.
 
 set tmpflashfile=tmpfile.txt
-set emmawebsite=https://developer.sonymobile.com/open-devices/flash-tool/how-to-download-and-install-the-flash-tool/
-set unlockwebsite=https://developer.sonymobile.com/unlockbootloader/
-set oemblobwebsite=https://developer.sonymobile.com/downloads/software-binaries/software-binaries-for-aosp-marshmallow-android-6-0-1-kernel-3-10-loire/
+set emmawebsite=https://developer.sony.com/develop/open-devices/get-started/flash-tool/download-flash-tool/
+set unlockwebsite=https://developer.sony.com/develop/open-devices/get-started/unlock-bootloader/
+set oemblobwebsite=https://developer.sony.com/file/download/software-binaries-for-aosp-marshmallow-android-6-0-1-kernel-3-10-loire/
 set fastbootkillretval=0
 
 echo(

@@ -139,7 +139,7 @@ fi
 
 if [ "$($FASTBOOTCMD getvar secure 2>&1 | head -n1 | cut -d ' ' -f2 )" == "yes" ]; then
   echo; echo "This device has not been unlocked, but you need that for flashing."
-  echo "Please go to https://developer.sonymobile.com/unlockbootloader/ and see instructions how to unlock your device."
+  echo "Please go to https://developer.sony.com/develop/open-devices/get-started/unlock-bootloader/ and see instructions how to unlock your device."
   echo;
   exit 1;
 fi
@@ -156,7 +156,7 @@ RPATCH=228
 if (( $VMAJOR < $RMAJOR || $VMAJOR == $RMAJOR && $VMINOR < $RMINOR || $VMAJOR == $RMAJOR && $VMINOR == $RMINOR && $VPATCH < $RPATCH )); then
   echo; echo "Your Sony Android version ($ANDROIDVERSION) on your device is too old."
   echo "You need to have at least version 34.3.A.0.228 in order for this installation to work."
-  echo "Please go to https://developer.sonymobile.com/open-devices/flash-tool/how-to-download-and-install-the-flash-tool/ and update your device."
+  echo "Please go to https://developer.sony.com/develop/open-devices/get-started/flash-tool/ and update your device."
   echo;
   exit 1;
 fi
@@ -216,7 +216,7 @@ done
 if [ -z $BLOBS ]; then
   echo; echo The Sony Vendor partition image was not found in the current directory. Please
   echo download it from
-  echo https://developer.sonymobile.com/downloads/software-binaries/software-binaries-for-aosp-marshmallow-android-6-0-1-kernel-3-10-loire/
+  echo https://developer.sony.com/file/download/software-binaries-for-aosp-marshmallow-android-6-0-1-kernel-3-10-loire/
   echo and unzip it into this directory.
   echo
   exit 1

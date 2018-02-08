@@ -203,8 +203,12 @@ for IMAGE in "${IMAGES[@]}"; do
   fi
 done
 
+if [ -z ${BLOB_BIN_PATH} ]; then
+  BLOB_BIN_PATH=./
+fi
+
 BLOBS=""
-for b in $(ls -1 *_loire.img 2>/dev/null); do
+for b in $(ls -1 ${BLOB_BIN_PATH}/*_loire.img 2>/dev/null); do
   if [ -n "$BLOBS" ]; then
    echo; echo "More than one Sony Vendor image was found. Please remove any additional files."
    echo

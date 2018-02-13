@@ -139,16 +139,24 @@ fi
 
 if [ "$($FASTBOOTCMD getvar secure 2>&1 | head -n1 | cut -d ' ' -f2 )" == "yes" ]; then
   echo; echo "This device has not been unlocked, but you need that for flashing."
-  echo "Please go to https://developer.sonymobile.com/unlockbootloader/ and see instructions how to unlock your device."
+  echo "Please go to https://developer.sony.com/develop/open-devices/get-started/unlock-bootloader/ and see instructions how to unlock your device."
   echo;
   exit 1;
 fi
 
-read -r VMAJOR VMINOR<<<$($FASTBOOTCMD getvar version-baseband 2>&1 | head -n1 | cut -d ' ' -f2 | cut -d '_' -f2 | cut -d '.' -f1,2 | tr . ' ')
+ANDROIDVERSION=$($FASTBOOTCMD getvar version-baseband 2>&1 | head -n1)
 
-if (( $VMAJOR < 34 || $VMAJOR == 34 && $VMINOR < 3 )); then
-  echo; echo "Your Sony Android version ($VMAJOR.$VMINOR) on your device is too old,"
-  echo "Please go to https://developer.sonymobile.com/open-devices/flash-tool/how-to-download-and-install-the-flash-tool/ and update your device."
+read -r VMAJOR VMINOR VPATCH<<<$(echo $ANDROIDVERSION | cut -d ' ' -f2 | cut -d '_' -f2 | cut -d '.' -f1,2,5 | tr . ' ')
+
+# Requirements in variables for easier testing
+RMAJOR=34
+RMINOR=3
+RPATCH=228
+
+if (( $VMAJOR < $RMAJOR || $VMAJOR == $RMAJOR && $VMINOR < $RMINOR || $VMAJOR == $RMAJOR && $VMINOR == $RMINOR && $VPATCH < $RPATCH )); then
+  echo; echo "Your Sony Android version ($ANDROIDVERSION) on your device is too old."
+  echo "You need to have at least version 34.3.A.0.228 in order for this installation to work."
+  echo "Please go to https://developer.sony.com/develop/open-devices/get-started/flash-tool/ and update your device."
   echo;
   exit 1;
 fi
@@ -195,8 +203,12 @@ for IMAGE in "${IMAGES[@]}"; do
   fi
 done
 
+if [ -z ${BLOB_BIN_PATH} ]; then
+  BLOB_BIN_PATH=./
+fi
+
 BLOBS=""
-for b in $(ls -1 *_loire.img 2>/dev/null); do
+for b in $(ls -1 ${BLOB_BIN_PATH}/*_loire.img 2>/dev/null); do
   if [ -n "$BLOBS" ]; then
    echo; echo "More than one Sony Vendor image was found. Please remove any additional files."
    echo
@@ -208,7 +220,7 @@ done
 if [ -z $BLOBS ]; then
   echo; echo The Sony Vendor partition image was not found in the current directory. Please
   echo download it from
-  echo https://developer.sonymobile.com/downloads/software-binaries/software-binaries-for-aosp-marshmallow-android-6-0-1-kernel-3-10-loire/
+  echo https://developer.sony.com/file/download/software-binaries-for-aosp-marshmallow-android-6-0-1-kernel-3-10-loire/
   echo and unzip it into this directory.
   echo
   exit 1

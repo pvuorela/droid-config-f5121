@@ -4,9 +4,9 @@
 :: This script is using fastboot to flash which differs from the factory method.
 
 set tmpflashfile=tmpfile.txt
-set emmawebsite=https://developer.sonymobile.com/open-devices/flash-tool/how-to-download-and-install-the-flash-tool/
-set unlockwebsite=https://developer.sonymobile.com/unlockbootloader/
-set oemblobwebsite=https://developer.sonymobile.com/downloads/software-binaries/software-binaries-for-aosp-marshmallow-android-6-0-1-kernel-3-10-loire/
+set emmawebsite=https://developer.sony.com/develop/open-devices/get-started/flash-tool/download-flash-tool/
+set unlockwebsite=https://developer.sony.com/develop/open-devices/get-started/unlock-bootloader/
+set oemblobwebsite=https://developer.sony.com/file/download/software-binaries-for-aosp-marshmallow-android-6-0-1-kernel-3-10-loire/
 set fastbootkillretval=0
 
 echo(
@@ -99,10 +99,30 @@ echo The device is unlocked for the flashing process. Continuing..
 
 :: Take from 1300-4911_34.0.A.2.292 the first number set, e.g., 34.0
 for /f "tokens=2 delims=_" %%i in ('type %tmpflashfile%') do @set version1=%%i
-for /f "tokens=1-2 delims=." %%a in ('echo %version1%') do @set version2=%%a.%%b
+for /f "tokens=1,2,5 delims=." %%a in ('echo %version1%') do (
+  @set vmajor=%%a
+  @set vminor=%%b
+  @set vpatch=%%c
+)
 
-:: We only support devices that have been flashed at least with version 34.3 of the Sony Android delivery
-if %version2% LSS 34.3 (
+:: We only support devices that have been flashed at least with version
+:: 34.3.A.0.228 of the Sony Android delivery.
+@set rmajor=34
+@set rminor=3
+@set rpatch=228
+
+if %vmajor% LSS %rmajor% goto :error_old_version
+if %vmajor% GTR %rmajor% goto :version_ok
+
+if %vminor% LSS %rminor% goto :error_old_version
+if %vminor% GTR %rminor% goto :version_ok
+
+if %vpatch% LSS %rpatch% goto :error_old_version
+if %vpatch% GTR %rpatch% goto :version_ok
+
+goto :version_ok
+
+:error_old_version
 echo(
 echo The Sony Android version on your device is too old, please update your
 echo device with instructions provided at the following webpage:
@@ -115,8 +135,10 @@ start "" %emmawebsite%
 exit /b 1
 )
 
+:version_ok
+
 echo(
-echo '%version2%' is new enough to support vendor partition. Continuing..
+echo '%version1%' is new enough to support vendor partition. Continuing..
 
 del %tmpflashfile% >NUL 2>NUL
 setlocal EnableDelayedExpansion

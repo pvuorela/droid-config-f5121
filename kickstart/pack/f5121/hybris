@@ -87,8 +87,7 @@ rmdir $FIMAGE_TEMP
 /sbin/resize2fs -f -M fimage.img
 
 # To make the file magic right lets convert to single file sparse image.
-# 3456M size is selected so that we always will have only one file as output.
-/usr/bin/img2simg -C 3456M fimage.img
+/usr/bin/img2simg fimage.img fimage.img001
 rm fimage.img
 
 /sbin/losetup -d $LVM_LOOP
@@ -97,8 +96,7 @@ mv temp.img sailfish.img
 
 /usr/bin/atruncate sailfish.img
 # To make the file magic right lets convert to single file sparse image.
-# 3456M size is selected so that we always will have only one file as output.
-/usr/bin/img2simg -C 3456M sailfish.img
+/usr/bin/img2simg sailfish.img sailfish.img001
 rm sailfish.img
 
 chmod 755 flash.*

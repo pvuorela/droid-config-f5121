@@ -171,6 +171,8 @@ fi
 
 IMAGES=(
 "boot ${SAILFISH_IMAGE_PATH}hybris-boot.img"
+"userdata ${SAILFISH_IMAGE_PATH}sailfish.img001"
+"system ${SAILFISH_IMAGE_PATH}fimage.img001"
 )
 
 if [ "$UNAME" = "Darwin" ]; then
@@ -230,16 +232,6 @@ for IMAGE in "${IMAGES[@]}"; do
   read partition ifile <<< $IMAGE
   echo "Flashing $partition partition.."
   $FLASHCMD $partition $ifile
-done
-
-# Flashing fimage to system partition
-for x in fimage.img0*; do
-  $FLASHCMD system $x
-done
-
-# Flashing to userdata for now..
-for x in sailfish.img0*; do
-  $FLASHCMD userdata $x
 done
 
 echo "Flashing oem partition.."

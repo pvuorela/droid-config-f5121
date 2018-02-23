@@ -4,7 +4,7 @@
 Description: Pattern with packages for f5122 configurations
 Name: jolla-configuration-f5122
 Requires:
-- pattern:jolla-hw-adaptation-f5121
+- pattern:jolla-hw-adaptation-f512x
 
 - patterns-sailfish-applications
 - patterns-sailfish-ui

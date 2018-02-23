@@ -1,8 +1,8 @@
 # Feel free to disable non-critical HA parts during devel by commenting lines out
 # Generated in hadk by executing: rpm/dhd/helpers/add_new_device.sh
 
-Description: Pattern with packages for f5121 HW Adaptation
-Name: jolla-hw-adaptation-f5121
+Description: Pattern with packages for f512x HW Adaptation
+Name: jolla-hw-adaptation-f512x
 Requires:
 - droid-hal-f5121
 - droid-hal-f5121-img-boot
@@ -65,5 +65,5 @@ Requires:
 # For devices where test_gps eventually gets a fix:
 - geoclue-provider-hybris
 
-Summary: Jolla HW Adaptation f5121
+Summary: Jolla HW Adaptation f512x
 

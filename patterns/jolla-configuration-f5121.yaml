@@ -16,6 +16,7 @@ Requires:
 - droid-config-f5121-preinit-plugin
 - droid-config-f5121-flashing
 - droid-config-f5121-bluez5
+- droid-hal-version-f5121
 
 - sailfish-content-graphics-z@ICON_RES@
 - csd

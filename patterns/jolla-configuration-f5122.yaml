@@ -16,6 +16,7 @@ Requires:
 - droid-config-f5122-preinit-plugin
 - droid-config-f5122-flashing
 - droid-config-f5122-bluez5
+- droid-hal-version-f5122
 
 - jolla-settings-networking-multisim
 - sailfish-content-graphics-z@ICON_RES@

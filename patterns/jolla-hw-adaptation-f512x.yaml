@@ -7,7 +7,6 @@ Requires:
 - droid-hal-f5121
 - droid-hal-f5121-img-boot
 - droid-hal-f5121-img-recovery
-- droid-hal-version-f5121
 
 # Hybris packages
 - libhybris-libEGL

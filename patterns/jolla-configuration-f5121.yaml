@@ -18,6 +18,8 @@ Requires:
 - droid-config-f5121-bluez5
 - droid-hal-version-f5121
 
+- droid-system-f5121
+
 - sailfish-content-graphics-z@ICON_RES@
 - csd
 - sd-utils

@@ -1,1 +1,2 @@
 /usr/share/ssu/board-mappings.d/99-f5122.ini
+/etc/ofono/ril_subscription.d/f5122.conf

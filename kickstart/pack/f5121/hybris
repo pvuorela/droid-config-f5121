@@ -18,7 +18,7 @@ if [ "$SSU_RELEASE_TYPE" = "rnd" ]; then
   RND_FLAVOUR=$SAILFISH_FLAVOUR
 fi
 
-RELEASENAME=${NAME// /_}-${SAILFISH_CUSTOMER// /_}${SAILFISH_CUSTOMER:+-}${EXTRA_NAME// /_}$RND_FLAVOUR-$VERSION_ID$DEVICE_ID
+RELEASENAME=${NAME// /_}-${SAILFISH_CUSTOMER// /_}${SAILFISH_CUSTOMER:+-}${EXTRA_NAME// /_}$RND_FLAVOUR${RND_FLAVOUR:+-}$VERSION_ID$DEVICE_ID
 
 
 IMGSECTORS=0
@@ -135,7 +135,7 @@ rm sailfish.img
 
 chmod 755 flash.*
 
-FILES="flash* *.img* *.exe *.dll"
+FILES="flash* *.img* *.exe *.dll *-release"
 FILES_TO_COPY="*.urls"
 
 mkdir -p ${RELEASENAME}

@@ -8,6 +8,7 @@ set emmawebsite=https://developer.sony.com/develop/open-devices/get-started/flas
 set unlockwebsite=https://developer.sony.com/develop/open-devices/get-started/unlock-bootloader/
 set oemblobwebsite=https://developer.sony.com/file/download/software-binaries-for-aosp-marshmallow-android-6-0-1-kernel-3-10-loire/
 set fastbootkillretval=0
+set serialnumbers=
 
 echo(
 echo This is a Windows flashing script for Sony Xperia X device.
@@ -29,24 +30,22 @@ call :sleep 3
 @call :md5sum fastboot.exe
 @call :md5sum flash-on-windows.bat
 
-:: Bus 002 Device 025: ID 0fce:0dde Sony Ericsson Mobile Communications AB Xperia Mini Pro Bootloader
-set vendorid=0x0fce
-set fastbootcmd=fastboot.exe -i %vendorid%
+set fastbootcmd_no_device=fastboot.exe
+set current_device=
 
 echo(
-echo Searching a device with vendor id '%vendorid%'..
+echo Searching a compatible device...
 
 :: Ensure that we are flashing right device
 :: F5121 - Xperia X
 :: F5122 - Xperia X Dual SIM
 :: F5321 - Xperia X Compact
 
-@call :getvar product
+@call :devices
 
-:: In case the fastboot had to be terminated there was no devices found
-:: This means that the fastboot driver is not properly installed or device
-:: is not properly connected.
-if [%fastbootkillretval%] == [0] (
+if not "%serialnumbers%" == "" GOTO no_error_serialnumbers
+
+:: If fastboot devices does not list any devices, then we cannot flash.
 echo(
 echo We did not find any devices with fastboot.
 echo(
@@ -58,11 +57,23 @@ echo device is properly installed.
 echo(
 pause
 exit /b 1
-)
 
-:: Verify that the device is right.
-findstr /R /C:"product: F512[12]" %tmpflashfile% >NUL 2>NUL
-if not errorlevel 1 GOTO no_error_product
+:no_error_serialnumbers
+
+
+if "%serialnumbers%" == "%serialnumbers: =%" GOTO no_multiple_serialnumbers
+
+echo(
+echo It seems that there are multiple compatible devices connected in fastboot mode.
+echo Make sure only the device that you intend to flash is connected.
+pause
+exit /b 1
+
+:no_multiple_serialnumbers
+
+set current_device=%serialnumbers%
+
+if not [%current_device%] == [] GOTO no_error_product
 
 echo(
 echo The DEVICE this flashing script is meant for WAS NOT FOUND!
@@ -73,6 +84,9 @@ pause
 exit /b 1
 
 :no_error_product
+
+:: Now we know which device we need to flash
+set fastbootcmd=%fastbootcmd_no_device% -s %current_device%
 
 :: Check that device has been unlocked
 @call :getvar secure
@@ -94,52 +108,7 @@ exit /b 1
 echo(
 echo The device is unlocked for the flashing process. Continuing..
 
-:: Verify that the Sony release on the phone is new enough.
-@call :getvar version-baseband
-
-:: Take from 1300-4911_34.0.A.2.292 the first number set, e.g., 34.0
-for /f "tokens=2 delims=_" %%i in ('type %tmpflashfile%') do @set version1=%%i
-for /f "tokens=1,2,5 delims=." %%a in ('echo %version1%') do (
-  @set vmajor=%%a
-  @set vminor=%%b
-  @set vpatch=%%c
-)
-
-:: We only support devices that have been flashed at least with version
-:: 34.3.A.0.228 of the Sony Android delivery.
-@set rmajor=34
-@set rminor=3
-@set rpatch=228
-
-if %vmajor% LSS %rmajor% goto :error_old_version
-if %vmajor% GTR %rmajor% goto :version_ok
-
-if %vminor% LSS %rminor% goto :error_old_version
-if %vminor% GTR %rminor% goto :version_ok
-
-if %vpatch% LSS %rpatch% goto :error_old_version
-if %vpatch% GTR %rpatch% goto :version_ok
-
-goto :version_ok
-
-:error_old_version
 echo(
-echo The Sony Android version on your device is too old, please update your
-echo device with instructions provided at the following webpage:
-echo %emmawebsite%
-echo(
-echo Press enter to open the browser with the webpage.
-echo(
-pause
-start "" %emmawebsite%
-exit /b 1
-)
-
-:version_ok
-
-echo(
-echo '%version1%' is new enough to support vendor partition. Continuing..
-
 del %tmpflashfile% >NUL 2>NUL
 setlocal EnableDelayedExpansion
 
@@ -182,6 +151,8 @@ exit /b 1
 @call :fastboot flash boot hybris-boot.img
 @call :fastboot flash system fimage.img001
 @call :fastboot flash userdata sailfish.img001
+@call :fastboot boot fastboot.img
+@call :sleep 3
 @call :fastboot flash oem %blobfilename%
 
 :: NOTE: Do not reboot here as the battery might not be in the device
@@ -199,6 +170,19 @@ exit /b 1
 :sleep
 :: @echo "Waiting %*s.."
 ping 127.0.0.1 -n %* >NUL
+@exit /b 0
+
+:devices
+for /f "tokens=1" %%f in ('fastboot devices') do call :new_serialno_found %%f
+@exit /b 0
+
+:new_serialno_found
+set serialno=%1
+if "%serialnumbers%" == "" (
+set serialnumbers=%serialno%
+) else (
+set "serialnumbers=%serialno% %serialnumbers%"
+)
 @exit /b 0
 
 :getvar

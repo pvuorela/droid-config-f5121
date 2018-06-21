@@ -67,42 +67,6 @@ case $UNAME in
     ;;
 esac
 
-VENDORIDLIST=(
-"0fce"
-)
-
-echo "Searching device to flash.."
-IFS=$'\n'
-if [ "$UNAME" = "Darwin" ]; then
-  # Mac OS X: Use System Profiler, get only the Vendor IDs and
-  # append a colon at the end to make the lsusb-specific grep
-  # from below work the same way as on Linux.
-  LSUSB=( $(system_profiler SPUSBDataType | \
-      grep -o 'Vendor ID: [x0-9a-f]*' | \
-      sed -e 's/$/:/') )
-else
-  # Linux
-  LSUSB=( $(lsusb) )
-fi
-unset IFS
-
-VENDORIDFOUND=
-
-for USB in "${LSUSB[@]}"; do
-  for VENDORID in ${VENDORIDLIST[@]}; do
-    # : after vendor id is to make sure we don't select based on product id.
-    if [[ "$USB" =~ $VENDORID: ]]; then
-      echo "Found device with vendor id '$VENDORID': $USB"
-      VENDORIDFOUND=$VENDORID
-    fi
-  done
-done
-
-if [ -z $VENDORIDFOUND ]; then
-  echo "No device that can be flashed found. Please connect device to fastboot mode before running this script."
-  exit 1
-fi
-
 FASTBOOT_BIN_PATH=
 FASTBOOT_BIN_NAME=
 
@@ -124,39 +88,44 @@ if ! check_fastboot "fastboot-$UNAME-$OS_VERSION" ; then
   fi
 fi
 
-FASTBOOTCMD="${FASTBOOT_BIN_PATH}${FASTBOOT_BIN_NAME} -i 0x$VENDORIDFOUND $FASTBOOTEXTRAOPTS"
+echo "Searching device to flash.."
+IFS=$'\n'
+FASTBOOTCMD_NO_DEVICE="${FASTBOOT_BIN_PATH}${FASTBOOT_BIN_NAME}"
+
+FASTBOOT_DEVICES=$($FASTBOOTCMD_NO_DEVICE devices |cut -d$'\t' -f1)
+
+if [ -z "$FASTBOOT_DEVICES" ]; then
+  echo "No device that can be flashed found. Please connect your device in fastboot mode before running this script."
+  exit 1
+fi
+
+SERIALNUMBERS=
+count=0
+for SERIALNO in $FASTBOOT_DEVICES; do
+  PRODUCT=$($FASTBOOTCMD_NO_DEVICE -s $SERIALNO getvar product 2>&1 | head -n1 | cut -d ' ' -f2)
+
+  if [ ! -z "$(echo $PRODUCT | grep -e "F512[12]")" ]; then
+    SERIALNUMBERS="$SERIALNO $SERIALNUMBERS"
+    count=$((count++))
+  fi
+done
+
+echo "Found $count devices: $SERIALNUMBERS"
+
+if [ $count -ne 1 ]; then
+  echo "Incorrect number of devices connected. Make sure there is exactly one device connected in fastboot mode."
+  exit 1
+fi
+
+TARGET_SERIALNO=$SERIALNUMBERS
+
+FASTBOOTCMD="${FASTBOOT_BIN_PATH}${FASTBOOT_BIN_NAME} -s $TARGET_SERIALNO $FASTBOOTEXTRAOPTS"
 
 echo "Fastboot command: $FASTBOOTCMD"
-
-PRODUCT="$($FASTBOOTCMD getvar product 2>&1 | head -n1 | cut -d ' ' -f2)"
-
-if [ -z "$(echo $PRODUCT | grep -e "F512[12]")" ]; then
-  echo; echo "This script is not meant for device $PRODUCT."
-  echo Please connect the right device and try again.
-  echo;
-  exit 1;
-fi
 
 if [ "$($FASTBOOTCMD getvar secure 2>&1 | head -n1 | cut -d ' ' -f2 )" == "yes" ]; then
   echo; echo "This device has not been unlocked, but you need that for flashing."
   echo "Please go to https://developer.sony.com/develop/open-devices/get-started/unlock-bootloader/ and see instructions how to unlock your device."
-  echo;
-  exit 1;
-fi
-
-ANDROIDVERSION=$($FASTBOOTCMD getvar version-baseband 2>&1 | head -n1)
-
-read -r VMAJOR VMINOR VPATCH<<<$(echo $ANDROIDVERSION | cut -d ' ' -f2 | cut -d '_' -f2 | cut -d '.' -f1,2,5 | tr . ' ')
-
-# Requirements in variables for easier testing
-RMAJOR=34
-RMINOR=3
-RPATCH=228
-
-if (( $VMAJOR < $RMAJOR || $VMAJOR == $RMAJOR && $VMINOR < $RMINOR || $VMAJOR == $RMAJOR && $VMINOR == $RMINOR && $VPATCH < $RPATCH )); then
-  echo; echo "Your Sony Android version ($ANDROIDVERSION) on your device is too old."
-  echo "You need to have at least version 34.3.A.0.228 in order for this installation to work."
-  echo "Please go to https://developer.sony.com/develop/open-devices/get-started/flash-tool/ and update your device."
   echo;
   exit 1;
 fi
@@ -174,6 +143,8 @@ IMAGES=(
 "userdata ${SAILFISH_IMAGE_PATH}sailfish.img001"
 "system ${SAILFISH_IMAGE_PATH}fimage.img001"
 )
+
+OEM_FLASHER=${SAILFISH_IMAGE_PATH}fastboot.img
 
 if [ "$UNAME" = "Darwin" ]; then
   # macOS doesn't have md5sum so lets use md5 there.
@@ -228,6 +199,7 @@ if [ -z $BLOBS ]; then
   exit 1
 fi
 
+IFS=' '
 for IMAGE in "${IMAGES[@]}"; do
   read partition ifile <<< $IMAGE
   echo "Flashing $partition partition.."
@@ -235,6 +207,9 @@ for IMAGE in "${IMAGES[@]}"; do
 done
 
 echo "Flashing oem partition.."
+$FASTBOOTCMD boot $OEM_FLASHER
+# wait to make sure host and device are ready.
+sleep 3
 $FLASHCMD oem $BLOBS
 
 echo

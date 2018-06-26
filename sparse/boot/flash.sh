@@ -106,7 +106,7 @@ for SERIALNO in $FASTBOOT_DEVICES; do
 
   if [ ! -z "$(echo $PRODUCT | grep -e "F512[12]")" ]; then
     SERIALNUMBERS="$SERIALNO $SERIALNUMBERS"
-    ((count++))
+    ((++count))
   fi
 done
 

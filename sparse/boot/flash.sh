@@ -149,8 +149,8 @@ OEM_FLASHER=${SAILFISH_IMAGE_PATH}fastboot.img
 if [ "$UNAME" = "Darwin" ]; then
   # macOS doesn't have md5sum so lets use md5 there.
   while read -r line; do
-    md5=$(echo $line | cut -d ' ' -f1)
-    filename=$(echo $line | cut -d ' ' -f2)
+    md5=$(echo $line | awk '{ print $1 }')
+    filename=$(echo $line | awk '{ print $2 }')
     md5calc=$(md5 $filename | cut -d '=' -f2 | tr -d '[:space:]')
     if [ "$md5" != "$md5calc" ]; then
       echo; echo "md5 sum does not match on file: $filename ($md5 vs $md5calc). Please re-download the package again."

@@ -151,8 +151,24 @@ exit /b 1
 @call :fastboot flash boot hybris-boot.img
 @call :fastboot flash system fimage.img001
 @call :fastboot flash userdata sailfish.img001
+
 @call :fastboot boot fastboot.img
-@call :sleep 3
+
+@echo(
+@echo Waiting until device is ready.
+:: Be less verbose about our loop.
+@echo off
+:: wait until the device reappears in fastboot mode again
+:wait_for_fastboot
+@call :sleep 1
+set serialnumbers=
+@call :devices
+IF not "%serialnumbers%" == "%current_device%" GOTO wait_for_fastboot
+
+:: wait an additional 1s, just to make sure.
+@call :sleep 1
+
+@echo on
 @call :fastboot flash oem %blobfilename%
 
 :: NOTE: Do not reboot here as the battery might not be in the device
@@ -173,7 +189,7 @@ ping 127.0.0.1 -n %* >NUL
 @exit /b 0
 
 :devices
-for /f "tokens=1" %%f in ('fastboot devices') do call :new_serialno_found %%f
+for /f "tokens=1" %%f in ('fastboot.exe devices') do call :new_serialno_found %%f
 @exit /b 0
 
 :new_serialno_found

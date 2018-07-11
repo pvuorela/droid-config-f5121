@@ -173,7 +173,7 @@ ping 127.0.0.1 -n %* >NUL
 @exit /b 0
 
 :devices
-for /f "tokens=1" %%f in ('fastboot devices') do call :new_serialno_found %%f
+for /f "tokens=1" %%f in ('fastboot.exe devices') do call :new_serialno_found %%f
 @exit /b 0
 
 :new_serialno_found

@@ -88,11 +88,11 @@ you attempt to flash over an older version, this part will fail and Sailfish X
 will not be able to boot. In this situation, you should still be able to flash
 the correct Android version with Emma, and flash Sailfish X again.
 
-Updating with Emma:
+Updating with Emma (Xperia flash tool):
 
 * Download and install the Emma tool from:
 
-https://developer.sonymobile.com/open-devices/flash-tool/how-to-download-and-install-the-flash-tool/
+https://developer.sony.com/file/download/flash-tool-for-xperia-devices/
 
 NOTE: Sony provides the Emma tool for Windows only.
 
@@ -137,7 +137,7 @@ partition image, ready to flash to your device.
 
 The Sony binary image for the Xperia™ X can be found here:
 
-https://developer.sonymobile.com/downloads/software-binaries/software-binaries-for-aosp-marshmallow-android-6-0-1-kernel-3-10-loire/
+https://developer.sony.com/file/download/software-binaries-for-aosp-marshmallow-android-6-0-1-kernel-3-10-loire/
 
 Make sure you download the file from this link, version 13 or higher, as older 
 versions may still be available that are not compatible with the Sailfish X

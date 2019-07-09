@@ -22,7 +22,6 @@ Requires:
 
 - sailfish-content-graphics-z@ICON_RES@
 - csd
-- sd-utils
 - geoclue-provider-mlsdb
 - jolla-settings-system-flashlight
 - mapplauncherd-booster-silica-qt5-media

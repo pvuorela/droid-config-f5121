@@ -57,6 +57,9 @@ Requires:
 # enable device lock and allow to select untrusted software
 - sailfish-devicelock-fpd
 
+# Enable home encryption
+- sailfish-device-encryption
+
 # For devices where test_gps eventually gets a fix:
 - geoclue-provider-hybris
 

@@ -16,6 +16,9 @@ Requires:
 # Bluetooth
 - bluetooth-rfkill-event-hciattach
 
+# NFC
+- nfcd-pn54x-plugin
+
 # Sensors
 - hybris-libsensorfw-qt5
 
